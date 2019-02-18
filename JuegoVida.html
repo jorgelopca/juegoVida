@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+       <meta charset="utf-8" />
+       <title>Juego de la vida</title>
+       <script>
+
+		var vertical=prompt("Dime las dimensiones de la tabla en vertical");
+		var horizontal=prompt("Dime las dimensiones de la tabla en horizontal");
+		
+
+       	function genera_tabla(){
+			var body = document.getElementsByTagName("body")[0];
+			var tabla=document.createElement("table");
+			var tblBody=document.createElement("tbody");
+
+			for(var i=0; i<horizontal; i++){
+				var hilera=document.createElement("tr");
+
+				for(var j=0; j<vertical; j++){
+					var celda=document.createElement("td");
+					var atributo=document.createAttribute("onclick");
+					atributo.value="cambiaEstado(this)";
+					celda.setAttributeNode(atributo);
+					var textoCelda=document.createTextNode("Célula muerta");
+					celda.appendChild(textoCelda);
+					hilera.appendChild(celda);
+				}
+
+				tblBody.appendChild(hilera);
+			}
+
+			tabla.appendChild(tblBody);
+			body.appendChild(tabla);
+			tabla.setAttribute("border", "2");
+
+			var formulario= document.createElement("form");
+			var boton=document.createElement("button");
+
+			var atributo3=document.createAttribute('style');
+			atributo3.value="width:100px; height:25px";
+			boton.setAttributeNode(atributo3);
+			boton.innerText="Reinciar";
+			formulario.appendChild(boton);
+			body.appendChild(formulario);
+
+		}
+
+		function cambiaEstado(obj){
+			var textoCelula=obj.innerHTML;
+			if(textoCelula=="Célula viva"){
+				obj.innerHTML="Célula muerta";
+
+			}else{
+				obj.innerHTML="Célula viva";
+			}
+		}
+
+
+		function turno(){
+			//Recorrer la tabla guardando en un array todas las celdas que tendrán que cambiar para hacerlo a posteriori (si se van cambiando conforme se recorre la tabla, se alterarán los resultados);
+			var tabla_array=document.getElementsByTagName("td");
+
+			var array_datos=[];
+
+			for(x=0; x<tabla_array.length; x++){
+				array_datos[x]=tabla_array[x].innerHTML;
+			}
+
+			//Aquí, array_datos contiene todas los datos de la tabla. Ahora habrá que analizar los datos de cada célula. Vamos a crear un array de posiciones para compararlos.
+
+			var array_posiciones=[]
+
+       		var i=0;
+       		var posicion=0;
+       		var final=horizontal*vertical;
+
+
+       		while(posicion<final){
+       			for(x=0; x<vertical; x++){
+       				multiplicador=i*10;
+       				array_posiciones[posicion]=x+multiplicador;
+       				posicion++;
+       			}
+       			i++;
+
+       		}
+
+       		//Ahora, analizaremos cada célula para saber si al final del turno estará viva o muerta. Aquellas que tengan que cambiar de estado, serán guardadas (mediante su posición) en otro array. Esto lo haremos mediante el método analizaCelula().
+       		var posicionesCambios=[];
+       		for(x=0; x<array_posiciones.length; x++){
+       			if(analizaCelula(array_datos, array_posiciones, x)==true){
+       				posicionesCambios.push(array_posiciones[x]);
+       			}
+       		}
+
+       		//Ahora crearemos una nueva tabla con los cambios
+       		var nuevaTabla=generaTablaNueva(posicionesCambios, array_datos, array_posiciones);
+
+       		var tablilla=document.getElementsByTagName("table")[0];
+       		tablilla.innerHTML=creaTabla(nuevaTabla);
+
+		}
+
+
+		//Método en el que introducimos el array que contiene los estados de las células, sus psiciones y la poición de la célula que queremos analizar. Si debe cambiar su estado, el método devolverá true.
+		function analizaCelula(arrayEstados, arrayPosiciones, posicionCelula){
+
+			var estado=false;
+				//Localizamos el estado de la célula y su posición
+				var estadoCelula
+				estadoCelula=arrayEstados[posicionCelula];
+				var sumador=0;
+				//Localizamos las otras 8 células vecinas
+
+				//Célula diagonal superior izquierda
+				var vecina1;
+				var posicionVecina1;
+				var posicionVecina1=posicionCelula-11;
+				posicionVecina1=arrayPosiciones.indexOf(posicionVecina1);
+				vecina1=arrayEstados[posicionVecina1];
+				if(vecina1=="Célula viva"){
+					sumador+=1;
+				}
+
+
+				//Célula superior
+				var vecina2;
+				var posicionVecina2;
+				var posicionVecina2=posicionCelula-10;
+				posicionVecina2=arrayPosiciones.indexOf(posicionVecina2);
+				vecina2=arrayEstados[posicionVecina2];
+				if(vecina2=="Célula viva"){
+					sumador+=1;
+				}
+
+				//Célula diagonal superior derecha
+				var vecina3;
+				var posicionVecina3;
+				var posicionVecina3=posicionCelula-9;
+				posicionVecina3=arrayPosiciones.indexOf(posicionVecina3);
+				vecina3=arrayEstados[posicionVecina3];
+				if(vecina3=="Célula viva"){
+					sumador+=1;
+				}
+
+				//Célula izquierda
+				var vecina4;
+				var posicionVecina4;
+				var posicionVecina4=posicionCelula-1;
+				posicionVecina4=arrayPosiciones.indexOf(posicionVecina4);
+				vecina4=arrayEstados[posicionVecina4];
+				if(vecina4=="Célula viva"){
+					sumador+=1;
+				}
+
+				//Célula derecha
+				var vecina5;
+				var posicionVecina5;
+				var posicionVecina5=posicionCelula+1;
+				posicionVecina5=arrayPosiciones.indexOf(posicionVecina5);
+				vecina5=arrayEstados[posicionVecina5];
+				if(vecina5=="Célula viva"){
+					sumador+=1;
+				}
+
+				//Célula diagonal inferior izquierda
+				var vecina6;
+				var posicionVecina6;
+				var posicionVecina6=posicionCelula+9;
+				posicionVecina6=arrayPosiciones.indexOf(posicionVecina6);
+				vecina6=arrayEstados[posicionVecina6];
+				if(vecina6=="Célula viva"){
+					sumador+=1;
+				}
+
+				//Célula inferior
+				var vecina7;
+				var posicionVecina7;
+				var posicionVecina7=posicionCelula+10;
+				posicionVecina7=arrayPosiciones.indexOf(posicionVecina7);
+				vecina7=arrayEstados[posicionVecina7];
+				if(vecina7=="Célula viva"){
+					sumador+=1;
+				}
+
+				//Célula diagonal inferior derecha
+				var vecina8;
+				var posicionVecina8;
+				var posicionVecina8=posicionCelula+11;
+				posicionVecina8=arrayPosiciones.indexOf(posicionVecina8);
+				vecina8=arrayEstados[posicionVecina8];
+				if(vecina8=="Célula viva"){
+					sumador+=1;
+				}
+
+				if(estadoCelula=="Célula viva"){
+					if(sumador<2){
+						estado=true;
+					}
+
+					if(sumador>3){
+						estado=false;
+					}
+				}else{
+					if(sumador==3){
+						estado=true;
+					}
+				}
+
+			
+
+			return estado;
+		}
+
+		function generaTablaNueva(arrayCambios, array_estados, array_posiciones){
+			var nuevaTabla=[];
+
+			for(x=0; x<array_estados.length; x++){
+				var posicion=array_posiciones[x];
+				var cambio=false;
+				for(i=0; i<arrayCambios.length; i++){
+					if(arrayCambios[i]==array_posiciones[x]){
+						cambio=true;
+					}
+				}
+				if(cambio==true){
+					if(array_estados[x]=="Célula viva"){
+						nuevaTabla.push("Celula muerta");
+					}else{
+						nuevaTabla.push("Célula viva");
+					}
+				}else{
+					nuevaTabla.push(array_estados[x]);
+				}
+			}
+			return nuevaTabla;
+		}
+
+		function creaTabla(tableta) {
+			var tabla="<table border='2'>";
+			var posicion=0;
+
+			for(var i=0; i<horizontal; i++){
+				tabla+="<tr>";
+
+				for(var j=0; j<vertical; j++){
+					tabla+="<td>";
+					tabla+=tableta[posicion];
+					tabla+="</td>";
+					posicion++;
+				}
+				tabla+="</tr>";
+			}
+
+			tabla+="</table>";
+			return tabla;
+
+}
+
+
+
+       </script>
+    </head>
+
+
+	<body>
+		<script>
+			genera_tabla();
+
+		</script>
+		<form>
+			<input type="button" value="Próximo turno" onclick="turno()">
+		</form>
+	</body>
+</html>
